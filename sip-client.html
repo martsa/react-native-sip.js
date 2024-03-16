@@ -1,0 +1,119 @@
+<!-- sip_client.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIP Client</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin: 0 10px;
+    }
+    .button:hover {
+      background-color: #0056b3;
+    }
+    .error-message {
+      color: red;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>SIP Client</h1>
+  
+  <button id="initializeButton" class="button">Initialize SIP Client</button> <!-- Button to initialize SIP client -->
+  <button id="callButton" class="button">Call</button> <!-- Button to initiate SIP call -->
+  
+  <script src="./node_modules/sip.js/" onload="onSipJsLoad()" onerror="onSipJsError()"></script> <!-- Include SIP.js library with onload and onerror events -->
+  <script>
+    let sipJsLoaded = false; // Flag to track whether SIP.js library is loaded
+
+    // Function called when SIP.js library is successfully loaded
+    const onSipJsLoad = () => {
+      console.log('SIP.js library loaded successfully');
+      sipJsLoaded = true; // Set flag to true indicating library is loaded
+    };
+
+    // Function called when loading SIP.js library fails
+    const onSipJsError = () => {
+      console.error('Failed to load SIP.js library');
+      document.getElementById('errorMessage').innerText = 'Failed to load SIP.js library. Please check your internet connection and try again.'; // Display error message on the page
+    };
+
+    // Function to register to SIP server and initialize SIP client
+    const registerToServer = () => {
+      console.log('Initializing SIP client...');
+
+      // Check if SIP.js library is loaded before proceeding
+      if (!sipJsLoaded) {
+        console.error('SIP.js library is not loaded. Cannot initialize SIP client.');
+        document.getElementById('errorMessage').innerText = 'SIP.js library is not loaded. Cannot initialize SIP client.'; // Display error message on the page
+        return;
+      }
+
+      // Your code to initialize the SIP client goes here
+      // For example:
+      const server = {
+        uri: 'sip.example.com', // Replace with your SIP server URI
+        username: 'username',
+        password: 'password',
+      };
+
+      // Create SIP User Agent
+      const userAgent = new SIP.UA({
+        uri: `sip:${server.username}@${server.uri}`,
+        transportOptions: {
+          server: server.uri,
+          wsServers: `wss://${server.uri}:5061`, // Use wss:// for secure WebSocket
+        },
+        authorizationUser: server.username,
+        password: server.password,
+      });
+
+      // Start SIP User Agent
+      userAgent.start().then(() => {
+        console.log('SIP client registered successfully');
+      }).catch(error => {
+        console.error('Error registering SIP client:', error);
+      });
+    };
+
+    // Function to initiate SIP call
+    const initiateCall = (calleeURI) => {
+      console.log('Initiating call to', calleeURI);
+      // Your code to initiate SIP call goes here
+    };
+
+    // Add event listener to initialize SIP client button
+    document.getElementById('initializeButton').addEventListener('click', () => {
+      console.log('Button clicked. Initializing SIP client...');
+      registerToServer(); // Initialize SIP client
+    });
+
+    // Add event listener to call button
+    document.getElementById('callButton').addEventListener('click', () => {
+      console.log('Call button clicked. Initiating SIP call...');
+      initiateCall('sip:callee@example.com'); // Replace with the SIP URI of the callee
+    });
+  </script>
+  
+  <div id="errorMessage" class="error-message"></div> <!-- Container for displaying error message -->
+</body>
+</html>
